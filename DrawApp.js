@@ -17,6 +17,16 @@ const styles = {
         height: '75px',
         minWidth: '75px'
     },
+
+    colorOptions: {
+        red: { 'backgroundColor': 'red' },
+        orange: { 'backgroundColor': 'orange' },
+        yellow: { 'backgroundColor': 'yellow' },
+        green: { 'backgroundColor': 'green' },
+        blue: { 'backgroundColor': 'blue' },
+        purple: { 'backgroundColor': 'purple' },
+        black: { 'backgroundColor': 'black' }
+    }
 }
 
 class DrawApp extends React.Component {
@@ -30,7 +40,7 @@ class DrawApp extends React.Component {
         this.addEventListener('touchmove', function (e) { e.preventDefault(); })
     }
 
-    // Modes to determine what to do if pen is either up or down
+    // What to do if pen is either up or down
     penUp() {
         this.setState({
             pen: 'up'
@@ -43,6 +53,14 @@ class DrawApp extends React.Component {
             penCoords: [e.nativeEvent.offsetX, e.nativeEvent.offsetY]
         })
     }
+
+    // Function used to set pen color
+    setColor(c) { 
+        //a color button was clicked
+            this.setState({
+                penColor: c
+            })
+        }
 
     // Handling buttons being clicked 
     // Setting mode to draw, when draw button is clicked
@@ -61,16 +79,30 @@ class DrawApp extends React.Component {
 
     // Reset button to clear canvas back to white and resets states back to originals
     reset() {
-
         this.setState({
             mode: 'draw',
-            pen: 'up'
+            pen: 'up',
+            lineWidth: 5,
+            penColor: 'black'
         })
 
         this.ctx = this.refs.canvas.getContext('2d')
         this.ctx.fillStyle = "white"
-        this.ctx.fillRect(0, 0, 400, 400)
+        this.ctx.fillRect(0, 0, 500, 500)
         this.ctx.lineWidth = 5
+    }
+
+    // Increasing pen size when button is pressed
+    penSizeUp() {
+        this.setState({
+            lineWidth: this.state.lineWidth += 5
+        })
+    }
+    // Decreasing pen size when button is pressed
+    penSizeDown() {
+        this.setState({
+            lineWidth: this.state.lineWidth -= 5
+        })
     }
 
     // Function to determine what to do while pen is down
@@ -83,7 +115,7 @@ class DrawApp extends React.Component {
             this.ctx.lineCap = 'round';
 
             if (this.state.mode == 'draw') {
-                this.ctx.strokeStyle = 'black'
+                this.ctx.strokeStyle = this.state.penColor
             }
 
             if (this.state.mode == 'erase') {
@@ -108,7 +140,7 @@ class DrawApp extends React.Component {
         return (
             <div style={styles.maindiv}>
 
-                <canvas id='canvas' ref='canvas' width='75%' height='75%' style={styles.canvas}
+                <canvas id='canvas' ref='canvas' width='500px' height='500px' style={styles.canvas}
                     onMouseMove={(e) => this.drawing(e)}
                     onMouseDown={(e) => this.penDown(e)}
                     onMouseUp={(e) => this.penUp(e)}>
@@ -117,8 +149,21 @@ class DrawApp extends React.Component {
                 <div>
                     <button onClick={(e) => this.draw(e)} style={styles.button}>Draw </button>
                     <button onClick={(e) => this.erase(e)} style={styles.button}>Erase</button>
+                    <button onClick={(e) => this.penSizeUp()} style={styles.button}>Pen Size +</button>
+                    <button onClick={(e) => this.penSizeDown()} style={styles.button}>Pen Size -</button>
                     <button onClick={() => this.reset()} style={styles.button}>Reset</button>
                 </div>
+
+                <div>
+                    <button style={Object.assign({}, styles.colorOptions.red, styles.button)} onClick={() => this.setColor('red')}>Red</button>
+                    <button style={Object.assign({}, styles.colorOptions.orange, styles.button)} onClick={() => this.setColor('orange')}>Orange</button>
+                    <button style={Object.assign({}, styles.colorOptions.yellow, styles.button)} onClick={() => this.setColor('yellow')}>Yellow</button>
+                    <button style={Object.assign({}, styles.colorOptions.green, styles.button)} onClick={() => this.setColor('green')}>Green</button>
+                    <button style={Object.assign({}, styles.colorOptions.blue, styles.button)} onClick={() => this.setColor('blue')}>Blue</button>
+                    <button style={Object.assign({}, styles.colorOptions.purple, styles.button)} onClick={() => this.setColor('purple')}>Purple</button>
+                    <button style={Object.assign({}, styles.colorOptions.black, styles.button)} onClick={() => this.setColor('black')}>Black</button>
+                </div>
+
             </div>
         )
     }
