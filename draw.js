@@ -1,67 +1,81 @@
 window.onload = function() {
+  document.addEventListener('touchmove', function(e){ e.preventDefault(); });
 
-  document.ontouchmove = function(e){ e.preventDefault(); }
+  var canvas = document.getElementById('main');
+  var canvastop = canvas.offsetTop;
 
-  var canvas  = document.getElementById('main');
-  var canvastop = canvas.offsetTop
-
-  var context = canvas.getContext("2d");
+  var context = canvas.getContext('2d');
 
   var lastx;
   var lasty;
 
-  context.strokeStyle = "#000000";
+  context.strokeStyle = '#000000';
   context.lineCap = 'round';
   context.lineJoin = 'round';
   context.lineWidth = 5;
 
   function clear() {
-    context.fillStyle = "#ffffff";
-    context.rect(0, 0, 300, 300);
-    context.fill();
+      context.fillStyle = '#ffffff';
+      context.rect(0, 0, 300, 300);
+      context.fill();
   }
 
-  function dot(x,y) {
-    context.beginPath();
-    context.fillStyle = "#000000";
-    context.arc(x,y,1,0,Math.PI*2,true);
-    context.fill();
-    context.stroke();
-    context.closePath();
+  function dot(x, y) {
+      context.beginPath();
+      context.fillStyle = '#000000';
+      context.arc(x, y, 1, 0, Math.PI * 2, true);
+      context.fill();
+      context.stroke();
+      context.closePath();
   }
 
-  function line(fromx,fromy, tox,toy) {
-    context.beginPath();
-    context.moveTo(fromx, fromy);
-    context.lineTo(tox, toy);
-    context.stroke();
-    context.closePath();
+  function line(fromx, fromy, tox, toy) {
+      context.beginPath();
+      context.moveTo(fromx, fromy);
+      context.lineTo(tox, toy);
+      context.stroke();
+      context.closePath();
   }
 
-  canvas.ontouchstart = function(event){                   
-    event.preventDefault();                 
-    
-    lastx = event.touches[0].clientX;
-    lasty = event.touches[0].clientY - canvastop;
+  var drawing = false;
+  var canvasClicked = function(event) {
+      event.preventDefault();
+      drawing = true;
+      lastx = event.clientX || event.touches[0].clientX;
+      lasty = (event.clientY || event.touches[0].clientY) - canvastop;
 
-    dot(lastx,lasty);
+      dot(lastx, lasty);
+  };
+
+  var stopDrawing = function(event) {
+    drawing = false;
   }
 
-  canvas.ontouchmove = function(event){                   
-    event.preventDefault();                 
+  canvas.addEventListener('touchstart', canvasClicked);
+  canvas.addEventListener('mousedown', canvasClicked);
 
-    var newx = event.touches[0].clientX;
-    var newy = event.touches[0].clientY - canvastop;
+  var drawCanvas = function(event) {
+      event.preventDefault();
 
-    line(lastx,lasty, newx,newy);
-    
-    lastx = newx;
-    lasty = newy;
-  }
+      if (drawing) {
+          var newx = event.clientX || event.touches[0].clientX;
+          var newy = (event.clientY || event.touches[0].clientY) - canvastop;
 
+          line(lastx, lasty, newx, newy);
 
-  var clearButton = document.getElementById('clear')
-  clearButton.onclick = clear
+          lastx = newx;
+          lasty = newy;
+      }
+  };
 
-  clear()
-}
+  canvas.addEventListener('touchmove', drawCanvas);
+  canvas.addEventListener('mousemove', drawCanvas);
+
+  canvas.addEventListener('touchend', stopDrawing);
+  canvas.addEventListener('mouseup', stopDrawing);
+
+  var clearButton = document.getElementById('clear');
+  clearButton.onclick = clear;
+
+  clear();
+};
